@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="75 Day Reset">
+<meta name="theme-color" content="#21304A">
+<title>75 Day Reset — Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --paper: #ECE7DA;
+    --paper-raised: #F5F1E6;
+    --ink: #21304A;
+    --ink-soft: #4A5568;
+    --stamp: #C4472A;
+    --gold: #B8912F;
+    --sage: #5C7259;
+    --line: #D6CFBC;
+    --shadow: rgba(33,48,74,0.12);
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    background: var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: max(24px, env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom));
+  }
+
+  .wrap { max-width: 480px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 20px; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--stamp);
+    font-weight: 600;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    margin-top: 4px;
+    color: var(--ink);
+  }
+
+  .ticket {
+    background: var(--paper-raised);
+    border-radius: 14px;
+    box-shadow: 0 4px 14px var(--shadow);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    position: relative;
+    border: 1px solid var(--line);
+  }
+
+  .ticket::before, .ticket::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    background: var(--paper);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .day-card::before { left: -9px; }
+  .day-card::after { right: -9px; }
+
+  .day-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .nav-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--ink);
+    color: var(--paper-raised);
+    border: none;
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .nav-btn:active { transform: scale(0.95); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .day-label { text-align: center; flex: 1; }
+
+  .day-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .day-of {
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .day-date { font-size: 12px; color: var(--ink-soft); margin-top: 6px; text-align: center; }
+
+  .streak-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    background: var(--ink);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    color: var(--paper-raised);
+  }
+
+  .streak-num { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600; color: var(--gold); }
+  .streak-text { font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.85; }
+
+  .progress-track { width: 100%; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+  .progress-fill { height: 100%; background: var(--sage); border-radius: 3px; transition: width 0.3s ease; }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 18px 4px 8px;
+  }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 6px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    user-select: none;
+  }
+  .item:last-child { border-bottom: none; }
+
+  .checkbox {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    border: 2px solid var(--ink-soft);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .item.checked .checkbox { background: var(--stamp); border-color: var(--stamp); }
+  .checkbox svg { opacity: 0; width: 13px; height: 13px; }
+  .item.checked .checkbox svg { opacity: 1; }
+
+  .item-text { font-size: 14.5px; line-height: 1.4; padding-top: 1px; }
+  .item.checked .item-text { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: var(--line); }
+
+  .item-sub { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+
+  .status-banner { text-align: center; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-top: 16px; }
+  .status-complete { background: #E4EBDE; color: var(--sage); }
+  .status-incomplete { background: #F3E1DA; color: var(--stamp); }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">All-In Reset</div>
+    <h1>75 Day Challenge</h1>
+  </header>
+  <div id="app"></div>
+</div>
+
+<script>
+const DAILY_ITEMS = [
+  { id: 'move', text: 'Move your body', sub: '30–45 min — gym, home workout, or a brisk walk' },
+  { id: 'eat', text: 'Eat with intention', sub: 'No junk-only days, at least one clean meal' },
+  { id: 'read', text: 'Read', sub: '10–15 pages or equivalent' },
+  { id: 'screen', text: 'Screen time cap', sub: 'Stay under your daily social media limit' },
+  { id: 'water', text: '2L water' },
+  { id: 'learn1', text: 'Learning session #1' },
+  { id: 'learn2', text: 'Learning session #2' },
+  { id: 'wake', text: 'Wake by 7am', sub: '8am latest' },
+  { id: 'breakfast', text: 'Breakfast before 9am' },
+  { id: 'dinner', text: 'Dinner before 6pm' },
+  { id: 'nosnack', text: 'No snacks after 7pm' },
+  { id: 'nofood', text: 'No food after 9pm' },
+  { id: 'sleep', text: 'Lights out by 11pm' },
+];
+
+const TOTAL_DAYS = 75;
+const STORE_KEY = 'reset75';
+
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    return raw ? JSON.parse(raw) : { startDate: null, days: {}, viewDay: null };
+  } catch (e) {
+    return { startDate: null, days: {}, viewDay: null };
+  }
+}
+
+function saveStore(store) {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { console.error('Save failed', e); }
+}
+
+let store = loadStore();
+if (!store.startDate) store.startDate = new Date().toISOString().slice(0,10);
+
+const today = new Date();
+const sd = new Date(store.startDate);
+const diffDays = Math.floor((today - sd) / 86400000) + 1;
+let currentDay = store.viewDay || Math.min(Math.max(diffDays, 1), TOTAL_DAYS);
+
+saveStore(store);
+
+const app = document.getElementById('app');
+
+function dateForDay(n) {
+  const d = new Date(sd);
+  d.setDate(sd.getDate() + (n - 1));
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function getDayItems(n) { return store.days[n] || {}; }
+
+function isDayComplete(n) {
+  const items = getDayItems(n);
+  return DAILY_ITEMS.every(i => items[i.id]);
+}
+
+function currentStreak() {
+  let streak = 0;
+  for (let d = 1; d <= TOTAL_DAYS; d++) {
+    if (isDayComplete(d)) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function toggleItem(itemId) {
+  const items = getDayItems(currentDay);
+  items[itemId] = !items[itemId];
+  store.days[currentDay] = items;
+  saveStore(store);
+  render();
+}
+
+function goToDay(n) {
+  if (n < 1 || n > TOTAL_DAYS) return;
+  currentDay = n;
+  store.viewDay = n;
+  saveStore(store);
+  render();
+}
+
+function render() {
+  const items = getDayItems(currentDay);
+  const doneCount = DAILY_ITEMS.filter(i => items[i.id]).length;
+  const total = DAILY_ITEMS.length;
+  const complete = doneCount === total;
+  const streak = currentStreak();
+
+  app.innerHTML = `
+    <div class="streak-strip">
+      <div>
+        <div class="streak-num">${streak}</div>
+        <div class="streak-text">day streak</div>
+      </div>
+      <div style="flex:1; margin-left: 16px;">
+        <div class="progress-track"><div class="progress-fill" style="width:${(streak/TOTAL_DAYS*100).toFixed(1)}%"></div></div>
+        <div class="streak-text" style="margin-top:6px; text-align:right;">${streak} / ${TOTAL_DAYS} days</div>
+      </div>
+    </div>
+
+    <div class="ticket day-card">
+      <div class="day-row">
+        <button class="nav-btn" id="prevBtn" ${currentDay <= 1 ? 'disabled' : ''}>‹</button>
+        <div class="day-label">
+          <div class="day-number">${String(currentDay).padStart(2,'0')}</div>
+          <div class="day-of">of ${TOTAL_DAYS}</div>
+        </div>
+        <button class="nav-btn" id="nextBtn" ${currentDay >= TOTAL_DAYS ? 'disabled' : ''}>›</button>
+      </div>
+      <div class="day-date">${dateForDay(currentDay)}</div>
+    </div>
+
+    <div class="ticket">
+      <div class="section-label">Daily checklist — ${doneCount}/${total}</div>
+      ${DAILY_ITEMS.map(i => `
+        <div class="item ${items[i.id] ? 'checked' : ''}" data-id="${i.id}">
+          <div class="checkbox">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="item-text">${i.text}</div>
+            ${i.sub ? `<div class="item-sub">${i.sub}</div>` : ''}
+          </div>
+        </div>
+      `).join('')}
+      <div class="status-banner ${complete ? 'status-complete' : 'status-incomplete'}">
+        ${complete ? '✓ Day complete' : `${total - doneCount} item${total-doneCount===1?'':'s'} left`}
+      </div>
+    </div>
+
+    <footer>Started ${new Date(store.startDate).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})} · miss a day, streak resets</footer>
+  `;
+
+  document.getElementById('prevBtn').onclick = () => goToDay(currentDay - 1);
+  document.getElementById('nextBtn').onclick = () => goToDay(currentDay + 1);
+  document.querySelectorAll('.item').forEach(el => {
+    el.onclick = () => toggleItem(el.dataset.id);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
